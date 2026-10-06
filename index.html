@@ -16,165 +16,123 @@
     <div class="status-pill" id="statusPill"><span></span> Ready</div>
   </header>
 
-  <main>
-    <section class="hero">
-      <div>
-        <span class="section-kicker">Experimental playground</span>
-        <h1>How does a network learn to classify?</h1>
-        <p>Explore visual category learning with two numeric stimulus features. Change the model, train it, inspect its neurons, and compare predictions with the known category rule.</p>
-      </div>
-      <div class="hero-note">
-        <span>Model</span>
-        <strong>Small neural network</strong>
-        <p>Inputs → tanh hidden units → sigmoid output</p>
-      </div>
-    </section>
-
-    <section class="control-strip" aria-label="Experiment controls">
-      <label>Task preset
+  <main class="lab-shell">
+    <section class="toolbar" aria-label="Experiment controls">
+      <label class="task-picker">Category rule
         <select id="presetSelect">
-          <option value="one-dimensional">One relevant dimension</option>
-          <option value="two-dimensional">Two relevant dimensions</option>
-          <option value="xor">XOR synthetic extension</option>
+          <option value="one-dimensional">One relevant feature</option>
+          <option value="two-dimensional">Two relevant features</option>
+          <option value="xor">XOR challenge</option>
         </select>
       </label>
-      <label>Hidden units
-        <select id="hiddenSelect">
-          <option value="0">None — linear classifier</option>
-          <option value="2">2 neurons</option>
-          <option value="4" selected>4 neurons</option>
-          <option value="8">8 neurons</option>
-        </select>
-      </label>
-      <label>Learning rate
-        <input id="learningRate" type="range" min="0.005" max="0.5" step="0.005" value="0.03">
-        <output id="learningRateValue">0.030</output>
-      </label>
-      <label>Initialization seed
-        <input id="seedInput" type="number" min="1" max="999999" value="2026">
-      </label>
-      <div class="control-actions">
+      <div class="primary-actions">
         <button id="trainButton" class="primary">Train</button>
         <button id="pauseButton">Pause</button>
-        <button id="stepButton">+ 1 update</button>
-        <button id="resetButton">Reset</button>
-        <button id="repeatButton" class="secondary">Repeat seed</button>
       </div>
+      <button id="resetButton" class="reset-button" title="Reset model">Reset</button>
     </section>
 
-    <section class="dataset-banner" id="datasetBanner">
-      <div><strong id="datasetTitle">Published rule-based condition</strong><span id="datasetDescription"></span></div>
+    <section class="task-strip" id="datasetBanner">
+      <strong id="datasetTitle">Published rule-based condition</strong>
+      <span id="datasetDescription"></span>
       <span class="badge" id="dataBadge">Illustrative local fallback</span>
     </section>
 
-    <section class="workspace-grid">
-      <article class="panel space-panel">
-        <div class="panel-heading">
-          <div><span class="panel-number">01</span><h2>Stimulus space</h2></div>
+    <section class="workbench">
+      <article class="map-panel">
+        <div class="map-topline">
           <div class="legend"><span><i class="train-dot"></i>Training</span><span><i class="test-dot"></i>Testing</span></div>
+          <span class="map-hint">Click a dot to inspect. Click empty space to test.</span>
         </div>
-        <p class="panel-subtitle">Select a point to inspect its stimulus. Click any empty location to probe a prediction.</p>
         <div class="plot-wrap">
-          <canvas id="spaceCanvas" width="760" height="450" aria-label="Two-dimensional stimulus space"></canvas>
-          <div class="plot-labels"><span>Spatial frequency</span><span>Orientation</span></div>
+          <canvas id="spaceCanvas" width="760" height="450" aria-label="Category map. Click a point to inspect its prediction or empty space to test a new stimulus."></canvas>
         </div>
-        <div class="selected-insight" id="selectedInsight">
-          <div class="preview" id="stimulusPreview"><span>◌</span></div>
-          <div class="selected-text"><strong id="selectedTitle">Select a stimulus</strong><p id="selectedDescription">Click a training or testing point to inspect its category and prediction.</p></div>
-          <div class="metric"><span>Probability B</span><strong id="probabilityMetric">—</strong></div>
-          <div class="metric"><span>Loss</span><strong id="lossMetric">—</strong></div>
-        </div>
+        <div class="plot-labels"><span>Spatial frequency</span><span>Orientation</span></div>
       </article>
 
-      <article class="panel network-panel">
-        <div class="panel-heading">
-          <div><span class="panel-number">02</span><h2>Inside the network</h2></div>
-          <span class="live-label" id="networkLiveLabel">Ready</span>
+      <aside class="prediction-panel">
+        <span class="eyebrow">Selected stimulus</span>
+        <div class="preview" id="stimulusPreview"><span>◌</span></div>
+        <strong id="selectedTitle">Select a stimulus</strong>
+        <p id="selectedDescription">Choose a point on the map.</p>
+        <div class="prediction-output">
+          <span>Network output</span>
+          <strong id="outputValue">Probability B = —</strong>
         </div>
-        <p class="panel-subtitle">Select a neuron to inspect its bias, weighted input, and activation.</p>
-        <div class="network-visual" id="networkVisual"></div>
-        <div class="neuron-map">
-          <div class="map-heading"><h3>Hidden activation map</h3><span id="mapLabel">Select hidden neuron</span></div>
-          <canvas id="activationCanvas" width="600" height="300" aria-label="Hidden neuron activation over stimulus space"></canvas>
-          <div class="map-scale"><span>Low</span><i></i><i></i><i></i><i></i><span>High</span></div>
+        <div class="quick-stats">
+          <div><span>Training</span><strong id="trainAccuracy">—</strong></div>
+          <div><span>Testing</span><strong id="testAccuracy">—</strong></div>
         </div>
-        <div class="inspector" id="neuronInspector">
-          <div class="inspector-title"><span>Neuron inspector</span><small>Input and hidden units are selectable</small></div>
-          <div class="inspector-grid">
-            <div><span>Selected</span><strong id="neuronName">Input 1</strong></div>
-            <div><span>Bias</span><strong id="biasValue">—</strong></div>
-            <div><span>Weighted input</span><strong id="weightedValue">—</strong></div>
-            <div><span>Activation</span><strong id="activationValue">—</strong></div>
+        <div class="selected-metrics">
+          <div><span>Probability B</span><strong id="probabilityMetric">—</strong></div>
+          <div><span>Example loss</span><strong id="lossMetric">—</strong></div>
+        </div>
+      </aside>
+    </section>
+
+    <details class="more-panel">
+      <summary>More controls and model details <span id="stepBadge">0 updates</span></summary>
+      <div class="advanced-controls">
+        <label>Hidden units
+          <select id="hiddenSelect">
+            <option value="0">None</option>
+            <option value="2">2</option>
+            <option value="4" selected>4</option>
+            <option value="8">8</option>
+          </select>
+        </label>
+        <label>Learning rate
+          <input id="learningRate" type="range" min="0.005" max="0.5" step="0.005" value="0.03">
+          <output id="learningRateValue">0.030</output>
+        </label>
+        <label>Seed
+          <input id="seedInput" type="number" min="1" max="999999" value="2026">
+        </label>
+        <button id="stepButton">One update</button>
+        <button id="repeatButton">Repeat seed</button>
+      </div>
+
+      <section class="details-grid">
+        <article class="detail-block">
+          <div class="detail-heading"><h2>Network</h2><span id="networkLiveLabel">Live state</span></div>
+          <div class="network-visual" id="networkVisual"></div>
+          <div class="neuron-map">
+            <div class="map-heading"><h3>Hidden unit response</h3><span id="mapLabel">Select hidden neuron</span></div>
+            <canvas id="activationCanvas" width="600" height="300" aria-label="Hidden neuron activation over stimulus space"></canvas>
           </div>
-          <p id="neuronExplanation">The selected unit’s numerical state is shown here.</p>
-        </div>
-      </article>
+          <div class="inspector" id="neuronInspector">
+            <div class="inspector-title"><span>Selected unit</span><small>Press P to zero, R to restore</small></div>
+            <div class="inspector-grid">
+              <div><span>Unit</span><strong id="neuronName">Input 1</strong></div>
+              <div><span>Bias</span><strong id="biasValue">—</strong></div>
+              <div><span>Weighted input</span><strong id="weightedValue">—</strong></div>
+              <div><span>Activation</span><strong id="activationValue">—</strong></div>
+            </div>
+            <p id="neuronExplanation">Select a unit to inspect its state.</p>
+          </div>
+        </article>
 
-      <article class="panel learning-panel">
-        <div class="panel-heading">
-          <div><span class="panel-number">03</span><h2>Learning over time</h2></div>
-          <span class="step-badge" id="stepBadge">0 updates</span>
-        </div>
-        <p class="panel-subtitle">Loss and accuracy are calculated from the training batch; testing never updates weights.</p>
-        <div class="learning-chart">
-          <canvas id="learningCanvas" width="760" height="300" aria-label="Training and testing loss chart"></canvas>
-        </div>
-        <div class="learning-stats">
-          <div><span>Training loss</span><strong id="trainLoss">—</strong></div>
-          <div><span>Testing loss</span><strong id="testLoss">—</strong></div>
-          <div><span>Training accuracy</span><strong id="trainAccuracy">—</strong></div>
-          <div><span>Testing accuracy</span><strong id="testAccuracy">—</strong></div>
-        </div>
-        <div class="model-output">
-          <div><span>Current output</span><strong id="outputValue">Probability B = —</strong></div>
-          <p id="lossExplanation">Loss measures prediction error; accuracy measures the share of correct category predictions.</p>
-        </div>
-        <details class="experiment-list">
-          <summary>Suggested experiments <span>＋</span></summary>
-          <ol>
-            <li>Predict whether a linear classifier can learn the task, then test it.</li>
-            <li>When training stalls, add units or increase training updates.</li>
-            <li>Hold one feature constant and vary the other. Where does the prediction change?</li>
-            <li>Compare hidden activation maps before and after training.</li>
-            <li>Repeat training from another seed and compare internal representations.</li>
-            <li>Disable a hidden neuron and inspect which predictions change most.</li>
-            <li>Locate errors on the testing set without changing the weights.</li>
-          </ol>
-        </details>
-      </article>
-    </section>
-
-    <section class="method-section">
-      <div class="method-copy">
-        <span class="section-kicker">How the model works</span>
-        <h2>Learning is a sequence of small corrections.</h2>
-        <p>Each full-batch update calculates the difference between the model’s probability and the correct category, then adjusts weights using gradient descent. A single “update” is one complete pass over the training examples.</p>
-        <p>Each input is normalized by the same fixed scale of 0–100. The network receives numeric features; it does not extract them from image pixels.</p>
-      </div>
-      <div class="formula-card">
-        <span>Output probability</span>
-        <strong>p(B) = sigmoid(z)</strong>
-        <p>Loss = <span>−[y log(p) + (1−y) log(1−p)]</span></p>
-        <small>Hidden units use tanh. The output uses sigmoid.</small>
-      </div>
-    </section>
-
-    <section class="data-section">
-      <div class="data-copy">
-        <span class="section-kicker">Data provenance</span>
-        <h2>About the dataset</h2>
-        <p>The available environment could not retrieve the public Dryad workbook or its codebook, so this build uses reproducible local synthetic examples matching the requested category structures. No human responses or human results are invented.</p>
-        <p>When the workbook is available, it can be bundled as a local Excel file. The app is structured to keep training/test sets separate and to use category labels, not participant responses.</p>
-      </div>
-      <div class="data-card">
-        <small>Current source</small><strong>Local illustrative fallback</strong>
-        <p>Spatial frequency and orientation are 0–100 values. They are mapping placeholders, not physical units.</p>
-        <span>Dataset seed: <b id="dataSeedLabel">2026</b></span>
-      </div>
-    </section>
+        <article class="detail-block">
+          <div class="detail-heading"><h2>Learning progress</h2></div>
+          <p>Testing evaluates the model without changing its weights.</p>
+          <div class="learning-chart"><canvas id="learningCanvas" width="760" height="300" aria-label="Training and testing loss chart"></canvas></div>
+          <div class="loss-stats">
+            <div><span>Training loss</span><strong id="trainLoss">—</strong></div>
+            <div><span>Testing loss</span><strong id="testLoss">—</strong></div>
+          </div>
+          <details class="about-data">
+            <summary>About the task and data</summary>
+            <p id="lossExplanation">Loss measures prediction error; accuracy measures correct category predictions.</p>
+            <p>The public Dryad workbook and codebook could not be retrieved in the build environment. These reproducible examples follow the category rules and contain no human responses or human results. XOR is a synthetic classroom extension.</p>
+            <p>Features are displayed on a 0–100 scale as mapping placeholders, not physical measurement units. The network uses two numeric inputs, tanh hidden units, a sigmoid output, and full-batch gradient descent.</p>
+            <p>Dataset seed: <b id="dataSeedLabel">2026</b></p>
+          </details>
+        </article>
+      </section>
+    </details>
   </main>
 
   <footer><span>Neural Category Lab</span><span>Educational model — not a model of human learning by itself</span></footer>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=2"></script>
 </body>
 </html>

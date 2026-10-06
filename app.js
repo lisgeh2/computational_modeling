@@ -354,7 +354,14 @@ function updateMetrics() {
   $('#testLoss').textContent = test.loss.toFixed(3);
   $('#trainAccuracy').textContent = `${Math.round(train.accuracy * 100)}%`;
   $('#testAccuracy').textContent = `${Math.round(test.accuracy * 100)}%`;
-  $('#outputValue').textContent = state.selectedExample ? `p(B) = ${forwardForDisplay(state.selectedExample.x).output[0].toFixed(3)}` : 'p(B) = —';
+  if (!state.selectedExample) {
+    $('#outputValue').textContent = 'Probability B = —';
+  } else {
+    const probability = forwardForDisplay(state.selectedExample.x).output[0].toFixed(3);
+    $('#outputValue').textContent = state.selectedProbe
+      ? `p(B) = ${probability} · unlabeled`
+      : `p(B) = ${probability} · category ${state.selectedExample.y === 1 ? 'B' : 'A'}`;
+  }
   $('#statusPill').classList.toggle('running', state.running);
   $('#statusPill').lastChild.textContent = state.running ? ' Training' : state.updates ? ' Paused' : ' Ready';
   $('#networkLiveLabel').textContent = state.running ? 'Updating' : 'Live state';
@@ -366,16 +373,17 @@ function updateSelectedInsight() {
   const point = state.selectedExample;
   const p = forwardForDisplay(point.x).output[0];
   const item = state.selectedExample;
+  const isProbe = Boolean(state.selectedProbe);
   const category = item.y === 1 ? 'Category B' : 'Category A';
-  const source = item.source || 'training';
-  const sourceText = source === 'probe' ? 'Unlabeled probe' : `${source} example`;
-  $('#selectedTitle').textContent = `${sourceText} · ${category}`;
+  const sourceText = isProbe ? 'Unlabeled probe' : `${state.test.includes(item) ? 'Testing' : 'Training'} example`;
+  $('#selectedTitle').textContent = isProbe ? sourceText : `${sourceText} · ${category}`;
   $('#selectedDescription').textContent = `Frequency ${item.x[0].toFixed(0)}, orientation ${item.x[1].toFixed(0)} · ${state.dataset?.featureNames?.[0] ?? 'Feature 1'} / ${state.dataset?.featureNames?.[1] ?? 'Feature 2'}`;
   $('#probabilityMetric').textContent = p.toFixed(3);
-  $('#lossMetric').textContent = binaryCrossEntropy(p, item.y).toFixed(3);
+  $('#lossMetric').textContent = isProbe ? '—' : binaryCrossEntropy(p, item.y).toFixed(3);
   $('#stimulusPreview').innerHTML = `<span style="color:${p>.5?'#6c5ce7':'#2769e8'}">${makePreview(item.x)}</span>`;
-  $('#outputValue').textContent = `p(B) = ${p.toFixed(3)} · category ${item.y === 1 ? 'B' : 'A'}`;
-  if (state.selectedProbe) $('#selectedTitle').textContent = 'Unlabeled probe';
+  $('#outputValue').textContent = isProbe
+    ? `p(B) = ${p.toFixed(3)} · unlabeled`
+    : `p(B) = ${p.toFixed(3)} · category ${item.y === 1 ? 'B' : 'A'}`;
 }
 
 function makePreview(values) {
