@@ -43,6 +43,7 @@
         <div class="map-topline">
           <div class="legend"><span><i class="train-dot"></i>Training</span><span><i class="test-dot"></i>Testing</span></div>
           <span class="map-hint">Click a dot to inspect. Click empty space to test.</span>
+           <span class="update-badge" id="stepBadge">0 updates</span>
         </div>
         <div class="plot-wrap">
           <canvas id="spaceCanvas" width="760" height="450" aria-label="Category map. Click a point to inspect its prediction or empty space to test a new stimulus."></canvas>
@@ -71,7 +72,7 @@
     </section>
 
     <details class="more-panel">
-      <summary>More controls and model details <span id="stepBadge">0 updates</span></summary>
+      <summary>More controls and model details</summary>
       <div class="advanced-controls">
         <label>Hidden units
           <select id="hiddenSelect">
@@ -82,8 +83,8 @@
           </select>
         </label>
         <label>Learning rate
-          <input id="learningRate" type="range" min="0.005" max="0.5" step="0.005" value="0.03">
-          <output id="learningRateValue">0.030</output>
+          <input id="learningRate" type="range" min="0.005" max="0.5" step="0.005" value="0.5">
+          <output id="learningRateValue">0.500</output>
         </label>
         <label>Seed
           <input id="seedInput" type="number" min="1" max="999999" value="2026">
@@ -133,6 +134,6 @@
   </main>
 
   <footer><span>Neural Category Lab</span><span>Educational model — not a model of human learning by itself</span></footer>
-  <script type="module" src="app.js?v=2"></script>
+  <script type="module" src="app.js?v=4"></script>
 </body>
 </html>

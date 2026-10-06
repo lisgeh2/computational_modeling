@@ -11,7 +11,7 @@ const learningContext = learningCanvas.getContext('2d');
 const state = {
   preset: 'one-dimensional',
   hiddenUnits: 4,
-  learningRate: 0.03,
+  learningRate: 0.5,
   seed: 2026,
   dataset: null,
   network: null,
@@ -242,7 +242,13 @@ function renderSpace() {
       const point = [x, y];
       const p = forwardForDisplay(point).output[0];
       values.push(p);
-      spaceContext.fillStyle = `rgba(${Math.round(55 + p * 115)}, ${Math.round(100 + p * 70)}, ${Math.round(230 - p * 130)}, .50)`;
+      const neutral = [239, 243, 237];
+      const categoryColor = p > .5 ? [217, 111, 54] : [20, 113, 91];
+      const confidence = Math.pow(Math.abs(p - .5) * 2, .55);
+      const color = neutral.map((channel, index) =>
+        Math.round(channel + (categoryColor[index] - channel) * confidence)
+      );
+      spaceContext.fillStyle = `rgb(${color.join(',')})`;
       spaceContext.fillRect(margin.left + x / 100 * plotWidth, margin.top + (100 - y) / 100 * plotHeight, plotWidth / 50, plotHeight / 50);
     }
   }
@@ -435,8 +441,10 @@ function updateOneStep() {
   const testResult = state.network.evaluate(state.test);
   state.testHistory.push({ update: state.updates, loss: testResult.loss, accuracy: testResult.accuracy });
   updateMetrics();
-  renderAll();
-  if (state.selectedExample) updateSelectedInsight();
+  renderSpace();
+  renderNetwork();
+  renderActivationMap();
+  updateSelectedInsight();
 }
 
 function trainLoop() {

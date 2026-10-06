@@ -195,6 +195,7 @@ body { font-family: "DM Sans", sans-serif; }
 .workbench { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 1.25rem; align-items: start; }
 .map-panel { min-width: 0; padding: .8rem; border: 1px solid var(--line); border-radius: 7px; background: white; }
 .map-topline { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0 .25rem .65rem; }
+.update-badge { flex: 0 0 auto; padding: .25rem .5rem; border-radius: 4px; color: var(--blue); background: var(--blue-soft); font-size: .7rem; font-weight: 700; }
 .legend { color: var(--muted); }
 .map-hint { color: var(--muted); font-size: .72rem; }
 .plot-wrap { border: 0; border-radius: 0; background: white; }
@@ -252,7 +253,9 @@ footer { padding: 1rem max(1rem, calc((100vw - 1240px) / 2)); }
   .workbench, .details-grid { grid-template-columns: 1fr; }
   .prediction-panel { padding: .4rem .3rem; }
   .prediction-panel .preview { width: 56px; height: 56px; }
-  .map-topline { align-items: flex-start; flex-direction: column; gap: .25rem; }
+  .map-topline { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .3rem; }
+  .map-hint { grid-column: 1 / -1; grid-row: 2; }
+  .update-badge { grid-column: 2; grid-row: 1; }
   .advanced-controls { grid-template-columns: 1fr 1fr; }
   .advanced-controls label:nth-child(2) { grid-column: 1 / -1; }
   .advanced-controls button { min-height: 42px; }
