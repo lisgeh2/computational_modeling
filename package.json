@@ -1,0 +1,10 @@
+{
+  "name": "neural-category-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/model.test.js",
+    "serve": "python -m http.server 4173"
+  }
+}
