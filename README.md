@@ -1,42 +1,69 @@
 # Neural Category Lab
 
-A small local browser app for exploring neural-network category learning with two visual-stimulus features: spatial frequency and orientation. It needs no account, API key, package installation, or network data at runtime.
+An interactive browser playground for **computational models of human category
+learning**. A small neural network learns to sort visual stimuli – defined by
+spatial frequency and orientation – into two categories, and every step of that
+learning can be inspected live.
+
+![Screenshot of the app](docs/screenshot.png)
+
+Built with plain JavaScript (ES modules + Canvas), no framework, no build step
+and no runtime dependencies.
+
+## Features
+
+- **Three category structures:** a one-dimensional rule, a two-dimensional
+  (diagonal) rule and a synthetic XOR task.
+- **Configurable model:** hidden-layer size, learning rate and random seed –
+  with zero hidden units the network becomes a linear classifier.
+- **Training controls:** train continuously, pause, single-step, reset or replay
+  the same seed for fully reproducible runs.
+- **Inspect everything:** click a stimulus to see its prediction, click empty
+  space to probe the decision surface, select a hidden neuron to view its bias
+  and activation, or temporarily "lesion" it.
+- **Learning curves:** training vs. test loss and accuracy (evaluation never
+  updates the weights).
+
+## Model
+
+| | |
+|---|---|
+| Inputs | 2 features, normalised from a 0–100 display scale |
+| Hidden layer | tanh units |
+| Output | sigmoid, binary cross-entropy loss |
+| Optimiser | full-batch gradient descent |
+| RNG | seeded `mulberry32` for deterministic datasets and initialisation |
 
 ## Run locally
 
-Node.js is used for the test suite. To serve the app, use Python 3:
-
-```powershell
-npm run serve
+```bash
+npm run serve      # python -m http.server 4173
 ```
 
-Open <http://localhost:4173>. The app is static and can also be served by any local HTTP server.
+Then open <http://localhost:4173>. Any static file server works.
 
-Run the model tests with:
+## Tests
 
-```powershell
-npm test
+```bash
+npm test           # node --test, no dependencies needed
 ```
 
-## Explore
+The test suite checks numerical correctness, that the network actually learns,
+reproducibility across seeds and that evaluation does not change the model.
 
-- Choose a one-dimensional rule, a two-dimensional diagonal rule, or the synthetic XOR extension.
-- Change the hidden-layer size, learning rate, and initialization seed.
-- Train continuously, pause, apply one update, reset, or repeat the same seed.
-- Select a training or test point to inspect its prediction. Click elsewhere in the plot to probe a prediction without adding a label or changing the weights.
-- Select a neuron to inspect its bias and activation. The hidden-unit intervention temporarily zeros the selected unit and can be restored without changing learned weights.
-- Compare training and test loss and accuracy. Evaluation does not update the model.
+## Project structure
 
-Inputs are normalized from the displayed 0–100 scale. The model uses tanh hidden units, a sigmoid output, binary cross-entropy, and full-batch gradient descent. A network with no hidden units is a linear classifier.
+```
+├── index.html          interface and controls
+├── styles.css          responsive layout and styling
+├── app.js              application state, interaction, canvas visualisations
+├── model.js            datasets and neural-network implementation
+└── tests/
+    └── model.test.js   unit tests (node:test)
+```
 
-## Data provenance
+## Data note
 
-The public Dryad workbook and codebook could not be retrieved in the build environment. The app therefore uses deterministic local illustrative data generated from documented category rules; it does not contain participant responses or claim to reproduce human results. The XOR task is a synthetic classroom extension. The displayed feature values are mapping placeholders, not physical measurement units.
-
-## Files
-
-- `index.html`: interface and controls.
-- `styles.css`: responsive layout and visual styling.
-- `app.js`: application state, interaction, and canvas visualizations.
-- `model.js`: deterministic datasets and neural-network implementation.
-- `tests/model.test.js`: numerical, learning, reproducibility, and evaluation tests.
+The stimuli are generated locally from documented category rules. They are
+illustrative and do not contain or reproduce real participant data. The XOR
+task is a synthetic teaching extension.
